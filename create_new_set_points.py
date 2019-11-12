@@ -10,10 +10,20 @@ from programs.set_points_function.new_set_points import new_set_points, energy_s
 
 groupings = pd.read_csv('../data/BuildingGroupings.csv')
 
-for root, dirs, files in os.walk("../data"):
+groups = []
+points = []
+
+for root, dirs, files in os.walk("../data/last_year"):
     for filename in files:
-        data = pd.read_csv('../data/' + str(filename))
+        data = pd.read_csv('../data/last_year/' + str(filename))
         data = box_data_cleaning((data))
         new_set_points(data)
-        print(groupings[groupings['Csv Filenames'] == str(filename)].iloc[:, 0])
-        min_and_max(data, 46)
+        # Fix the next line to return only the value of the group number
+        groups.append(groupings[groupings['Csv Filenames'] == str(filename)]['Group Number'].values[0])
+        points.append(min_and_max(data, 47))
+
+d = {'Groups': groups, 'Points': points}
+
+full_points = pd.DataFrame(data=d)
+
+print(full_points)

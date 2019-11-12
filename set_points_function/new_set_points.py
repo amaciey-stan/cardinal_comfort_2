@@ -78,6 +78,5 @@ def energy_savings(data):
                                    sum(-1740.78 + (47.4439 * data['Water Set Point']))))
 
 def min_and_max(data, week):
-
-    print(min(data[data['Week'] == week]['New Points Weekly']))
-    print(max(data[data['Week'] == week]['New Points Weekly']))
+# prints the low and high set points separated by a slash
+    return str(round(min(data[data['Week'] == week]['New Points Weekly']))) + '/' + str(round(max(data[data['Week'] == week]['New Points Weekly'])))
