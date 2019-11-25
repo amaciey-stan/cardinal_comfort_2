@@ -1,83 +1,57 @@
 import numpy as np
 
-
-def new_set_points(data):
-    # Creates a list of the new set points based weekly variances
-    new_points_weekly = []
-
-    # Calculates the weekly variance in water set points from last year
-    variances_weekly = data.groupby('Week').agg(np.var)['Water Set Point']
-
-    for i in variances_weekly.index.values:
-        weekly = data[data['Week'] == i].reset_index()
-        low = min(weekly['Water Set Point'])
-        high = max(weekly['Water Set Point'])
-
-        if variances_weekly[i] > 40:
-            for j in weekly['Outside Temp']:
-                if j > 56:
-                    new_points_weekly.append(low * 0.95)
-                else:
-                    new_points_weekly.append(high * 0.9)
-
-        elif 10 < variances_weekly[i] < 40:
-            for j in weekly['Outside Temp']:
-                if j > 56:
-                    new_points_weekly.append(low * 0.98)
-                else:
-                    new_points_weekly.append(high * 0.9)
-
-        else:
-            for j in weekly['Outside Temp']:
-                if j > 56:
-                    new_points_weekly.append(low * 0.95)
-                else:
-                    new_points_weekly.append(high * 0.95)
-
-    data.loc[:, 'New Points Weekly'] = new_points_weekly[::-1]
-
-    # Creates a list of the new set points based on daily variances
-    new_points_daily = []
-
-    # Calculates the daily variance in water set points from last year
-    variances_daily = data.groupby('Day').agg(np.var)['Water Set Point']
-
-    for i in variances_daily.index.values:
-        daily = data[data['Day'] == i].reset_index()
-        low = min(daily['Water Set Point'])
-        high = max(daily['Water Set Point'])
-
-        if variances_daily[i] > 40:
-            for j in daily['Outside Temp']:
-                if j > 56:
-                    new_points_daily.append(low)
-                else:
-                    new_points_daily.append(high * 0.98)
-
-        elif 20 < variances_daily[i] < 40:
-            for j in daily['Outside Temp']:
-                if j > 56:
-                    new_points_daily.append(low * 0.95)
-                else:
-                    new_points_daily.append(high * 0.98)
-
-        else:
-            for j in daily['Outside Temp']:
-                if j > 56:
-                    new_points_daily.append(low)
-                else:
-                    new_points_daily.append(high * 0.99)
-
-    data.loc[:, 'New Points Daily'] = new_points_daily[::-1]
+import pandas as pd
 
 
-def energy_savings(data):
-    # Not finished. Will require an update when the model is completed
-    print('Energy Savings: ' + str(sum(-1740.78 + (47.4439 * data['New Points Weekly'])) /
-                                   sum(-1740.78 + (47.4439 * data['Water Set Point']))))
+def setdiff_sorted(array1,array2,assume_unique=False):
+    # Compares two series and returns the values from array 1 not found n array 2
+    ans = np.setdiff1d(array1,array2,assume_unique).tolist()
+    if assume_unique:
+        return sorted(ans)
+    return ans
 
 
-def min_and_max(data, week):
-    # prints the low and high set points separated by a slash
-    return str(round(min(data[data['Week'] == week]['New Points Weekly']))) + '/' +\
-           str(round(max(data[data['Week'] == week]['New Points Weekly'])))
+def new_set_points(this_week, data):
+    # Cleans google sheet data and creates new set point/weather combinations
+    min_low = 110  # absolute lowest low set point
+    min_high = 125  # absolute lowest high set point
+    max_low = 130  # absolute highest low set point
+    max_high = 140  # absolute highest high set point
+    potential_lows = np.arange(min_low, max_low)  # range of all acceptable low points
+    potential_highs = np.arange(min_high, max_high)  # range of all acceptable high points
+
+    set_points_columns = list(data.drop(['Date', 'Day of Week', 'Outside Temperature (Forecast)',
+                                              'Observed Temperature', 'Maintenance Tech'], axis=1).columns)
+
+    # Calculates moving average of low temperatures and adds a new column
+    daily_low_averages = [np.mean(data.loc[i-3:i-1, 'Observed Temperature']) for i in data
+                          .index.values]
+    daily_low_averages[0] = 55
+    data.loc[:, 'Moving Average Low'] = daily_low_averages
+
+    upcoming_low_averages = [np.mean(this_week.loc[i - 3:i - 1, 'Outside Temperature (Forecast)']) for i in this_week
+                             .index.values]
+    upcoming_low_averages[0] = 55
+    this_week.loc[:, 'Moving Average Low'] = upcoming_low_averages
+
+    # New DataFrame for untried set points
+    new_points = pd.DataFrame(columns=set_points_columns)
+
+    # creates DataFrame of previous days with the same temperatures and previous averages as the coming week
+    for i in this_week.index.values:
+        low = this_week.loc[i, 'Outside Temperature (Forecast)']
+        average = this_week.loc[i, 'Moving Average Low']
+        observed_temperatures = data[(data['Observed Temperature'] == low) &
+                                     (data['Moving Average Low'] == average)]
+
+        day_points = []
+        for j in set_points_columns:
+            previous_set_points = observed_temperatures.loc[:, j]
+            previous_highs = [i.split("/")[1] for i in previous_set_points]
+            untried_highs = setdiff_sorted(potential_highs, previous_highs, assume_unique=True)
+            best_point = untried_highs[0]
+            day_points.append(str(min_low) + '/' + str(best_point))
+
+        new_points = new_points.append(pd.Series(day_points, index=new_points.columns), ignore_index=True)
+
+    return new_points
