@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from new_set_points import new_set_points_3
+from new_set_points import new_set_points
 
 test_data = pd.read_csv('test_data.csv')
 

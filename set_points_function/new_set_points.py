@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 
 
-def setdiff_sorted(array1,array2,assume_unique=False):
+def setdiff_sorted(array1, array2, assume_unique=False):
     # Compares two series and returns the values from array 1 not found n array 2
-    ans = np.setdiff1d(array1,array2,assume_unique).tolist()
+    ans = np.setdiff1d(array1, array2, assume_unique).tolist()
     if assume_unique:
         return sorted(ans)
     return ans
@@ -21,7 +21,7 @@ def new_set_points(this_week, data):
     potential_highs = np.arange(min_high, max_high)  # range of all acceptable high points
 
     set_points_columns = list(data.drop(['Date', 'Day of Week', 'Outside Temperature (Forecast)',
-                                              'Observed Temperature', 'Maintenance Tech'], axis=1).columns)
+                                        'Observed Temperature', 'Maintenance Tech'], axis=1).columns)
 
     # Calculates moving average of low temperatures and adds a new column
     daily_low_averages = [np.mean(data.loc[i-3:i-1, 'Observed Temperature']) for i in data
@@ -47,7 +47,7 @@ def new_set_points(this_week, data):
         day_points = []
         for j in set_points_columns:
             previous_set_points = observed_temperatures.loc[:, j]
-            previous_highs = [i.split("/")[1] for i in previous_set_points]
+            previous_highs = [i.split('/')[1] for i in previous_set_points]
             untried_highs = setdiff_sorted(potential_highs, previous_highs, assume_unique=True)
             best_point = untried_highs[0]
             day_points.append(str(min_low) + '/' + str(best_point))
