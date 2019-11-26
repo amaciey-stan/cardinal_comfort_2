@@ -9,4 +9,4 @@ next_week_data = pd.read_csv('next_week_test_data.csv')
 
 test_points = new_set_points(next_week_data, test_data)
 
-print(test_points)
+test_points.to_csv('weekly_set_points.csv')

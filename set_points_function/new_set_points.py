@@ -16,7 +16,7 @@ def new_set_points(this_week, data):
     min_low = 110  # absolute lowest low set point
     min_high = 125  # absolute lowest high set point
     max_low = 130  # absolute highest low set point
-    max_high = 140  # absolute highest high set point
+    max_high = 145  # absolute highest high set point
 
     # creating dictionaries that reference the above points but adjust them for certain buildings based on AWAIR data
     low_set_points_dictionary = {'B1': min_low,
@@ -42,9 +42,6 @@ def new_set_points(this_week, data):
                                   'B9': min_high,
                                   'B10': min_high,
                                   'B11': min_high}
-
-    potential_lows = np.arange(min_low, max_low)  # range of all acceptable low points
-    potential_highs = np.arange(min_high, max_high)  # range of all acceptable high points
 
     set_points_columns = list(data.drop(['Date', 'Day of Week', 'Outside Temperature (Forecast)',
                                         'Observed Temperature', 'Maintenance Tech'], axis=1).columns)
@@ -72,6 +69,11 @@ def new_set_points(this_week, data):
 
         day_points = []
         for j in set_points_columns:
+            # range of all acceptable low points
+            potential_lows = np.arange(low_set_points_dictionary.get(j), max_low)
+
+            # range of all acceptable high points
+            potential_highs = np.arange(high_set_points_dictionary.get(j), max_high)
             previous_set_points = observed_temperatures.loc[:, j]
             previous_highs = [i.split('/')[1] for i in previous_set_points]
             untried_highs = setdiff_sorted(potential_highs, previous_highs, assume_unique=True)
