@@ -17,6 +17,32 @@ def new_set_points(this_week, data):
     min_high = 125  # absolute lowest high set point
     max_low = 130  # absolute highest low set point
     max_high = 140  # absolute highest high set point
+
+    # creating dictionaries that reference the above points but adjust them for certain buildings based on AWAIR data
+    low_set_points_dictionary = {'B1': min_low,
+                                 'B2': (min_low + 7),
+                                 'B3': (min_low + 7),
+                                 'B4': (min_low + 5),
+                                 'B5': min_low,
+                                 'B6': min_low,
+                                 'B7': min_low,
+                                 'B8': (min_low + 5),
+                                 'B9': min_low,
+                                 'B10': min_low,
+                                 'B11': min_low}
+
+    high_set_points_dictionary = {'B1': min_high,
+                                  'B2': (min_high + 7),
+                                  'B3': (min_high + 7),
+                                  'B4': (min_high + 5),
+                                  'B5': min_high,
+                                  'B6': min_high,
+                                  'B7': min_high,
+                                  'B8': (min_high + 5),
+                                  'B9': min_high,
+                                  'B10': min_high,
+                                  'B11': min_high}
+
     potential_lows = np.arange(min_low, max_low)  # range of all acceptable low points
     potential_highs = np.arange(min_high, max_high)  # range of all acceptable high points
 

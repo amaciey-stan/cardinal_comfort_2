@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime as dt
 
 
 # Ensures that the data in question fall within the time frame that heat is usually turned on
@@ -60,8 +61,10 @@ def box_data_cleaning(data):
     data_full = data_full.merge(water_supply_data, on='Date', how='inner')
     data_full = data_full.merge(water_return_data, on='Date', how='inner')
 
-    """Creating New Columns for day of year, week of year, demand level, and changing the date column to merge on 
+    """Creating New Columns for day of year, week of year, and changing the date column to merge on 
     previous year's data"""
     data_full.loc[:, 'Week'] = data_full['Date'].dt.week
     data_full.loc[:, 'Day'] = data_full['Date'].dt.dayofyear
+    data_full.loc[:, 'Year'] = data_full['Date'].dt.year
+    data_full.loc[:, 'Date'] = data_full['Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
     return data_full
