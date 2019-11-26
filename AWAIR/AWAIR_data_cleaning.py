@@ -1,7 +1,25 @@
 import pandas as pd
 
-awair = pd.read_csv('AWAIR/mirrielees_AWAIR.csv')
+import os
 
-awair.loc[:, 'temp (F)'] = awair.iloc[:, 1] * (9/5) + 32
+import re
 
-awair.iloc[:, 0] = pd.to_datetime(awair.iloc[:, 0])
+from zipfile import ZipFile
+
+awair_df = pd.DataFrame()
+
+file_name = "C:/Users/amaciey/PycharmProjects/cardinal_comfort/data/data.zip"
+
+with ZipFile(file_name, 'r') as zip:
+    for i in zip.namelist():
+        # adds the building name to each individual csv file
+        zip.extract(i)
+        data = pd.read_csv(i)
+        data['Building'] = str(i)
+
+        # concatenates all dataframes into one
+        awair_df = awair_df.append(data)
+
+        os.remove(i)
+
+awair_df.to_csv('weekly_awair.csv')
