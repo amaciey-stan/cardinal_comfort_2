@@ -2,8 +2,6 @@ import pandas as pd
 
 import os
 
-import re
-
 from zipfile import ZipFile
 
 awair_df = pd.DataFrame()
@@ -22,4 +20,10 @@ with ZipFile(file_name, 'r') as zip:
 
         os.remove(i)
 
-awair_df.to_csv('weekly_awair.csv')
+awair_df = awair_df.merge(pd.read_csv('AWAIR_and_metasys.csv'), left_on='Building', right_on='AWAIR Name', how='inner')
+
+awair_df.drop(columns=['Building'], inplace=True)
+
+print(awair_df)
+
+# awair_df.to_csv('weekly_awair.csv')
