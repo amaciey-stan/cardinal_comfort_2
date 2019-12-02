@@ -26,4 +26,4 @@ for i in buildings:
 
     cleaned_df = cleaned_df.append(data)
 
-cleaned_df.to_csv('../data/weekly_cleaned_data.csv')
+# cleaned_df.to_csv('../data/weekly_cleaned_data.csv')

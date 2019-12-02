@@ -20,10 +20,10 @@ with ZipFile(file_name, 'r') as zip:
 
         os.remove(i)
 
-awair_df = awair_df.merge(pd.read_csv('AWAIR_and_metasys.csv'), left_on='Building', right_on='AWAIR Name', how='inner')
+awair_df = awair_df.merge(pd.read_csv('C:/Users/amaciey/PycharmProjects/cardinal_comfort/programs/AWAIR/AWAIR_and_metasys.csv'), left_on='Building', right_on='AWAIR Name', how='inner')
 
 awair_df.drop(columns=['Building'], inplace=True)
 
-print(awair_df)
+print('awair_df created')
 
 # awair_df.to_csv('weekly_awair.csv')
