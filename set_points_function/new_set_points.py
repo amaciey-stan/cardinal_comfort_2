@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def setdiff_sorted(array1, array2, assume_unique=False):
-    # Compares two series and returns the values from array 1 not found n array 2
+    """Compares two series and returns the values from array 1 not found n array 2"""
     ans = np.setdiff1d(array1, array2, assume_unique).tolist()
     if assume_unique:
         return sorted(ans)
@@ -12,9 +12,29 @@ def setdiff_sorted(array1, array2, assume_unique=False):
 
 
 def new_set_points(this_week, data):
-    # Cleans google sheet data and creates new set point/weather combinations
-    min_low = 110  # absolute lowest low set point
-    min_high = 125  # absolute lowest high set point
+    """
+    Cleans google sheet data and creates new set point/weather combinations
+
+    This function reads the full data set of previous set points and weather conditions that we've tried and sorts them
+    out of the potential future combinations to try. it then selects the lowest untried set point for each grouping and
+    creates a DataFrame that merges the low and high points into the format we use in our google sheet
+
+    Parameters
+    -----------
+    this_week: DataFrame
+        The Heating Plan Google sheet for the upcoming week. Empty except for the dates and forecast low temperatures
+    data: DataFrame
+        The full table of all previous weeks in the Google Sheet concatenated together in chronological order.
+        This includes the observed temperature.
+
+    Returns
+    ---------
+    DataFrame
+        The DataFrame that is output is exactly the same format as the Google Sheet. It can be saved to a csv file and
+        pasted in to the Sheet
+        """
+    min_low = 120  # absolute lowest low set point
+    min_high = 128  # absolute lowest high set point
     max_low = 130  # absolute highest low set point
     max_high = 145  # absolute highest high set point
 
@@ -32,8 +52,8 @@ def new_set_points(this_week, data):
                                  'B11': min_low}
 
     high_set_points_dictionary = {'B1': min_high,
-                                  'B2': (min_high + 7),
-                                  'B3': (min_high + 7),
+                                  'B2': (min_high + 10),
+                                  'B3': (min_high + 10),
                                   'B4': (min_high + 5),
                                   'B5': min_high,
                                   'B6': min_high,

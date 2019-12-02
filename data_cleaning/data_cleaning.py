@@ -24,7 +24,28 @@ def temperature_cleaning(data):
 
 
 def box_data_cleaning(data):
-    # creates DataFrame of outside Temp values and dates
+    """
+    Creates DataFrame of outside Temp values, water set points, and dates
+
+    Changes the structure of the metasys data set such that the relevant values are now columns rather than row values
+    joined by a common timestamp. This function also converts the values into floats from strings that end in 'deg F'
+    or something similar. It also adds various columns like the Week (out of 52), the day (out of 365), and changes the
+    Date format to be compatible with SQL
+
+    Parameters
+    ------------
+    data: DataFrame
+        This is the raw data as downloaded from the Metasys system. It has rows of different values that share a
+        common timestamp. One column is for which value that row represents (outside temp, water set point, etc.), and
+        another column denotes the actual value in degrees
+
+    Returns
+    ---------
+    DataFrame
+        This DataFrame has one column for each of the values we want to extract and all values are numerical. The format
+        of the dates are also changed
+
+    """
     outside_temp = data[data['Object Name'] == 'OA-T.Trend - Present Value (Trend1)']
     oa_dates = pd.to_datetime(outside_temp['Date / Time'])
     outside_temp = temperature_cleaning(outside_temp['Object Value'])
